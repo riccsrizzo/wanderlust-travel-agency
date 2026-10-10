@@ -1,15 +1,39 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-  <title>Wanderlust - Travel Agency</title>
-  
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  
-</body>
+    <title>Wanderlust - Travel Agency</title>
+
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="logo">
+        <a href="#hero">Wanderlust</a>
+      </div>
+
+      <!-- Checkbox invisível para controlar o menu sem JavaScript mobile -->
+      <input type="checkbox" id="menu-toggle" class="menu-toggle" />
+      <!-- Ícone Hambúrguer (3 barras) para mobile -->
+      <label for="menu-toggle" class="hamburger" aria-label="Toggle Navigation">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </label>
+
+      <nav class="nav">
+        <ul class="nav-list">
+          <li><a href="#hero" class="nav-link">Home</a></li>
+          <li><a href="#packages" class="nav-link">Packages</a></li>
+          <li><a href="#testimonials" class="nav-link">Testimonials</a></li>
+          <li>
+            <a href="#plan-trip" class="nav-link btn-nav">Plan Your Trip</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+  </body>
 </html>
