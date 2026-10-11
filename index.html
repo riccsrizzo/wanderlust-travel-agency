@@ -1,15 +1,210 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-  <title>Wanderlust - Travel Agency</title>
-  
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  
-</body>
+    <title>Wanderlust - Travel Agency</title>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="logo">
+        <a href="#hero">Wanderlust</a>
+      </div>
+
+      <!-- Checkbox invisível para controlar o menu sem JavaScript mobile -->
+      <input type="checkbox" id="menu-toggle" class="menu-toggle" />
+      <!-- Ícone Hambúrguer (3 barras) para mobile -->
+      <label for="menu-toggle" class="hamburger" aria-label="Toggle Navigation">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </label>
+
+      <nav class="nav">
+        <ul class="nav-list">
+          <li><a href="#hero" class="nav-link">Home</a></li>
+          <li><a href="#packages" class="nav-link">Packages</a></li>
+          <li><a href="#testimonials" class="nav-link">Testimonials</a></li>
+          <li>
+            <a href="#plan-trip" class="nav-link btn-nav">Plan Your Trip</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main>
+      <!-- SEÇÃO 1: HERO (Único H1 da página) -->
+      <section id="hero" class="hero-section">
+        <div class="hero-content">
+          <h1>Discover Your Next Unforgettable Journey</h1>
+          <p>
+            Explore handpicked destinations, custom tour packages, and unique
+            travel experiences around the globe.
+          </p>
+          <a href="#plan-trip" class="btn btn-primary">Plan Your Trip</a>
+        </div>
+      </section>
+
+      <!-- SEÇÃO 2: GRID DE PACOTES DE VIAGEM -->
+      <section id="packages" class="packages-section">
+        <div class="container">
+          <h2>Popular Tour Packages</h2>
+          <p class="section-subtitle">
+            Choose from our top-rated destinations for your next vacation.
+          </p>
+
+          <!-- Container em Grid no CSS -->
+          <div class="packages-grid">
+            <!-- Card 1 -->
+            <article class="package-card">
+              <div class="card-image">
+                <img
+                  src="./assets/image/eiffel-tower.avif"
+                  alt="Eiffel Tower in Paris"
+                />
+              </div>
+              <div class="card-content">
+                <h3>Romantic Paris Getaway</h3>
+                <div class="card-details">
+                  <span class="duration">⏱️ 7 Days / 6 Nights</span>
+                  <span class="price">$1,499</span>
+                </div>
+                <p>
+                  Experience the city of lights, world-class museums, and
+                  exquisite dining.
+                </p>
+                <a href="#plan-trip" class="btn btn-secondary"
+                  >Explore Details</a
+                >
+              </div>
+            </article>
+
+            <!-- Card 2 -->
+            <article class="package-card">
+              <div class="card-image">
+                <img
+                  src="./assets/image/bali-beach.avif"
+                  alt="Tropical beach in Bali"
+                />
+              </div>
+              <div class="card-content">
+                <h3>Bali Tropical Paradise</h3>
+                <div class="card-details">
+                  <span class="duration">⏱️ 10 Days / 9 Nights</span>
+                  <span class="price">$1,850</span>
+                </div>
+                <p>
+                  Relax on pristine beaches, visit ancient temples, and
+                  experience lush landscapes.
+                </p>
+                <a href="#plan-trip" class="btn btn-secondary"
+                  >Explore Details</a
+                >
+              </div>
+            </article>
+
+            <!-- Card 3 -->
+            <article class="package-card">
+              <div class="card-image">
+                <img
+                  src="./assets/image/swiss.avif"
+                  alt="Swiss Alps Mountains"
+                />
+              </div>
+              <div class="card-content">
+                <h3>Swiss Alps Adventure</h3>
+                <div class="card-details">
+                  <span class="duration">⏱️ 5 Days / 4 Nights</span>
+                  <span class="price">$1,299</span>
+                </div>
+                <p>
+                  Hike breathtaking mountain trails, ride panoramic trains, and
+                  enjoy mountain resorts.
+                </p>
+                <a href="#plan-trip" class="btn btn-secondary"
+                  >Explore Details</a
+                >
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+      <!-- SEÇÃO 3: DEPOIMENTOS -->
+      <section id="testimonials" class="testimonials-section">
+        <div class="container">
+          <h2>What Our Travelers Say</h2>
+
+          <div class="testimonials-grid">
+            <article class="testimonial-card">
+              <p class="testimonial-text">
+                "Wanderlust made our honeymoon seamlessly easy. Every detail
+                from transport to guided tours was perfectly organized!"
+              </p>
+              <div class="testimonial-author">
+                <img src="./assets/image/sarahJones.avif" alt="Sarah Johnson" />
+                <div>
+                  <h4>Sarah Johnson</h4>
+                  <span>Traveled to Paris</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="testimonial-card">
+              <p class="testimonial-text">
+                "The best vacation booking experience I've ever had. The local
+                guide in Bali was incredible and incredibly knowledgeable."
+              </p>
+              <div class="testimonial-author">
+                <img src="./assets/image/michaelChen.avif" alt="Michael Chen" />
+                <div>
+                  <h4>Michael Chen</h4>
+                  <span>Traveled to Bali</span>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="plan-trip" class="cta-section">
+        <div class="container cta-container">
+          <h2>Ready to Start Planning Your Next Trip?</h2>
+          <p>
+            Tell us where you want to go and our travel experts will craft the
+            perfect itinerary tailored to your preferences.
+          </p>
+
+          <!-- Formulário simplificado de chamada para ação -->
+          <form class="cta-form">
+            <input type="text" placeholder="Your Name" required />
+            <input type="email" placeholder="Your Email" required />
+            <select required>
+              <option value="" disabled selected>Select Destination</option>
+              <option value="paris">Paris, France</option>
+              <option value="bali">Bali, Indonesia</option>
+              <option value="alps">Swiss Alps, Switzerland</option>
+              <option value="other">Other Destination</option>
+            </select>
+            <button type="submit" class="btn btn-primary">Plan My Trip</button>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="container footer-content">
+        <p>&copy; 2026 Wanderlust Travel Agency. All rights reserved.</p>
+        <ul class="footer-links">
+          <li><a href="#hero">Privacy Policy</a></li>
+          <li><a href="#hero">Terms of Service</a></li>
+          <li><a href="#hero">Contact Us</a></li>
+        </ul>
+      </div>
+    </footer>
+  </body>
 </html>
