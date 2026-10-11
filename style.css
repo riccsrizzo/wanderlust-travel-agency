@@ -353,3 +353,38 @@ h2 {
 .cta-form button {
   flex: 1 1 180px;
 }
+
+/* ==========================================================================
+         7. FOOTER (FLEXBOX REAL)
+         ========================================================================== */
+
+.footer {
+  background-color: #090d16;
+  color: #64748b;
+  padding: 2rem 0;
+  font-size: 0.9rem;
+}
+
+.footer-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.footer-links {
+  display: flex;
+  gap: 1.5rem;
+  list-style: none;
+}
+
+.footer-links a {
+  color: #64748b;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.footer-links a:hover {
+  color: #ffffff;
+}
