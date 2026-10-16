@@ -1,34 +1,16 @@
-# Wanderlust Travel Agency – Responsive Landing Page
+# React + Vite
 
-A responsive, single-page travel agency website built exclusively with **pure HTML5 and CSS3** (no JavaScript, no frameworks). This project was developed as part of the **Practicum** program in collaboration with **Mayerfeld Consulting**.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
----
+Currently, two official plugins are available:
 
-## 📌 Project Overview
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-Wanderlust is a modern travel agency landing page designed to showcase handpicked tour packages, customer testimonials, and a custom trip planning call-to-action. The project demonstrates core web development fundamentals, emphasizing clean semantic HTML structures and modern CSS layout systems (Flexbox & CSS Grid).
+## React Compiler
 
-## 🛠️ Tech Stack & Requirements Compliance
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-- **HTML5:** Semantic landmarks (`<header>`, `<nav>`, `<main>`, `<section>`, `<article>`, `<footer>`), single `<h1>` tag, and accessible form structures.
-- **CSS3 Layout Systems:**
-  - **Flexbox:** Used for navigation bar alignment, button components, and footer content layout.
-  - **CSS Grid:** Implemented with `auto-fit` and `minmax()` for a fully responsive tour package grid and testimonials section.
-  - **Custom Variables (`:root`):** Standardized color scheme, typography, and spacing for theme consistency.
-  - **Global Reset:** Applied `box-sizing: border-box` to eliminate cross-browser layout inconsistencies and prevent horizontal scrolling (`overflow-x: hidden`).
-- **CSS-Only Interactivity:** Mobile hamburger menu developed using the **Checkbox Hack** (`:checked ~ .nav`), adhering 100% to the strict "No JavaScript" rule.
+## Expanding the ESLint configuration
 
-## 📱 Responsiveness
-
-The layout is engineered to fit seamlessly across mobile, tablet, and desktop screens without producing horizontal scrollbars.
-
-## 👥 Course & Team Context
-
-- **Program:** Practicum (in collaboration with **Mayerfeld Consulting**)
-- **Team / Group:** Team 5, Group D
-- **Team Members:** Lebogang, Salman Shaikh, Ricciardo Rizzo, Siyabusiswa Notutela, Assy Kayiba
-- **Workflow:** Collaborative design conceptualization, aligned team layout specifications, and individual code implementation in isolated personal repositories.
-
-## 📄 License
-
-Educational project developed for assessment purposes under the Practicum & Mayerfeld curriculum.
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
