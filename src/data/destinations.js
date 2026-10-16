@@ -5,7 +5,7 @@ export const destinations = [
     category: 'Europe',
     duration: '⏱️ 7 Days / 6 Nights',
     price: '$1,499',
-    image: '/images/eiffel-tower.avif',
+    image: './public/image/eiffel-tower.avif',
     description:
       'Experience the city of lights, world-class museums, and exquisite dining.',
   },
@@ -15,7 +15,7 @@ export const destinations = [
     category: 'Asia',
     duration: '⏱️ 10 Days / 9 Nights',
     price: '$1,850',
-    image: '/images/bali-beach.avif',
+    image: './public/image/bali-beach.avif',
     description:
       'Relax on pristine beaches, visit ancient temples, and experience lush landscapes.',
   },
@@ -25,7 +25,7 @@ export const destinations = [
     category: 'Europe',
     duration: '⏱️ 5 Days / 4 Nights',
     price: '$1,299',
-    image: '/images/swiss.avif',
+    image: './public/image/swiss.avif',
     description:
       'Hike breathtaking mountain trails, ride panoramic trains, and enjoy mountain resorts.',
   },
