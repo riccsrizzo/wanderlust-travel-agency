@@ -49,6 +49,12 @@ export function Header() {
             Packages
           </a>
           <a
+            href="#testimonials"
+            className="text-slate-600 hover:text-sky-600 font-medium transition-colors"
+          >
+            Testimonials
+          </a>
+          <a
             href="#plan-trip"
             className="bg-sky-600 text-white px-4 py-2 rounded-xl font-medium hover:bg-sky-700 transition-colors shadow-sm"
           >
@@ -73,6 +79,13 @@ export function Header() {
             className="text-slate-600 hover:text-sky-600 font-medium py-2 transition-colors"
           >
             Packages
+          </a>
+          <a
+            href="#testimonials"
+            onClick={() => setIsMenuOpen(false)}
+            className="text-slate-600 hover:text-sky-600 font-medium py-2 transition-colors"
+          >
+            Testimonials
           </a>
           <a
             href="#plan-trip"
