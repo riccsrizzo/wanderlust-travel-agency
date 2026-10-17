@@ -33,6 +33,7 @@ export function PlanTrip() {
               <option value="paris" className="bg-[#1e293b] text-white">Paris, France</option>
               <option value="bali" className="bg-[#1e293b] text-white">Bali, Indonesia</option>
               <option value="alps" className="bg-[#1e293b] text-white">Swiss Alps, Switzerland</option>
+              <option value="rio" className="bg-[#1e293b] text-white">Rio de Janeiro, Brazil</option>
               <option value="other" className="bg-[#1e293b] text-white">Other Destination</option>
             </select>
             
