@@ -20,6 +20,10 @@ app.use(cors());
 // Permite que o servidor interprete dados enviados em formato JSON no corpo das requisições (req.body)
 app.use(express.json());
 
+// Importa e conecta as rotas de autenticação sob o prefixo /api/auth
+const authRoutes = require('./routes/auth');
+app.use('/api/auth', authRoutes);
+
 // Rota de teste inicial para verificar se o servidor está no ar
 app.get('/', (req, res) => {
   res.send('API do Wanderlust Travel Agency está rodando com sucesso!');
