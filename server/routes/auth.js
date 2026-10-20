@@ -83,5 +83,74 @@ router.post('/register', async (req, res) => {
 });
 
 
+// ===========================================================================================================
+// ROTA DE LOGIN
+// ==========================================
+// Define uma rota do tipo POST no caminho '/login'
+// (O endereço completo para acesso será '/api/auth/login')
+router.post('/login', async (req, res) => {
+  try {
+    // Extrai o 'email' e a 'senha' enviados pelo cliente no corpo (body) da requisição
+    const { email, senha } = req.body;
+
+    // ----------------------------------------------------
+    // PASSO 1: VERIFICAÇÃO DA EXISTÊNCIA DO UTILIZADOR
+    // ----------------------------------------------------
+    // Procura no banco de dados Neon um registo que possua o e-mail informado.
+    // Usamos $1 para evitar ataques de SQL Injection.
+    const resultado = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+
+    // Se o array 'rows' estiver vazio (length === 0), significa que não existe nenhum utilizador com esse e-mail
+    if (resultado.rows.length === 0) {
+      // Retorna o código HTTP 400 (Bad Request) com uma mensagem Genérica de erro
+      // (Dica de segurança: não especificamos se foi o e-mail ou a senha que falhou para evitar vazamento de informações)
+      return res.status(400).json({ error: 'Credenciais inválidas (e-mail ou senha incorretos).' });
+    }
+
+    // Guarda os dados do utilizador encontrado na variável
+    const utilizador = resultado.rows[0];
+
+    // ----------------------------------------------------
+    // PASSO 2: COMPARAÇÃO E VALIDAÇÃO DA SENHA
+    // ----------------------------------------------------
+    // Compara a senha em texto puro enviada pelo formulário com a senha encriptada (hash) guardada no banco.
+    // A função 'bcrypt.compare' re-calcula o hash e verifica se correspondem de forma totalmente segura.
+    const senhaValida = await bcrypt.compare(senha, utilizador.senha);
+
+    // Se as senhas não coincidirem, retorna o erro de autenticação
+    if (!senhaValida) {
+      return res.status(400).json({ error: 'Credenciais inválidas (e-mail ou senha incorretos).' });
+    }
+
+    // ----------------------------------------------------
+    // PASSO 3: RESPOSTA DE SUCESSO
+    // ----------------------------------------------------
+    // Se passou pelas duas verificações, o login é bem-sucedido.
+    // Retorna o código HTTP 200 (OK) enviando os dados públicos do utilizador (excluindo a senha).
+    res.status(200).json({
+      message: 'Login efetuado com sucesso!',
+      utilizador: {
+        id: utilizador.id,
+        nome: utilizador.nome,
+        email: utilizador.email,
+        criado_em: utilizador.criado_em
+      }
+    });
+
+  } catch (erro) {
+    // ----------------------------------------------------
+    // TRATAMENTO DE ERROS DO SERVIDOR
+    // ----------------------------------------------------
+    // Caso ocorra qualquer erro de execução no servidor ou na consulta ao banco
+    console.error('Erro no login:', erro.message);
+    
+    // Retorna o código HTTP 500 (Internal Server Error)
+    res.status(500).json({ error: 'Erro no servidor ao tentar efetuar o login.' });
+  }
+});
+
+
+
+
 // Exporta o mini-router configurado para que ele possa ser importado e ativado no ficheiro principal (server/index.js)
 module.exports = router;
