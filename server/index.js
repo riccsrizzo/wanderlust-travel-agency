@@ -28,6 +28,9 @@ app.use('/api/auth', authRoutes);
 const packageRoutes = require('./routes/packages');
 app.use('/api/packages', packageRoutes);
 
+const testimonialRoutes = require('./routes/testimonials');
+app.use('/api/testimonials', testimonialRoutes);
+
 // Rota de teste inicial para verificar se o servidor está no ar
 app.get('/', (req, res) => {
   res.send('API do Wanderlust Travel Agency está rodando com sucesso!');
