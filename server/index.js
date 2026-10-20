@@ -24,6 +24,10 @@ app.use(express.json());
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
 
+// Importa e conecta as rotas de pacotes de viagem sob o prefixo /api/packages
+const packageRoutes = require('./routes/packages');
+app.use('/api/packages', packageRoutes);
+
 // Rota de teste inicial para verificar se o servidor está no ar
 app.get('/', (req, res) => {
   res.send('API do Wanderlust Travel Agency está rodando com sucesso!');
