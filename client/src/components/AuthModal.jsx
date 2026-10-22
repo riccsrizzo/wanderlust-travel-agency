@@ -6,19 +6,19 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
   // Estado para alternar entre a aba de Login (true) e Registo (false)
   const [isLoginMode, setIsLoginMode] = useState(true);
 
-  // Estados para capturar os valores dos inputs dos formulários
+  // Estados locais para capturar os valores dos inputs (mantidos em inglês para a UI)
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  // Estados para mensagens de erro ou sucesso na interface
+  // Estados para gerir mensagens de erro/sucesso e estado de carregamento
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Se o modal não estiver aberto, não renderiza nada na tela
+  // Se o modal não estiver aberto, interrompe a renderização
   if (!isOpen) return null;
 
-  // Função executada ao submeter o formulário (seja Login ou Registo)
+  // Função executada ao submeter o formulário (Login ou Registo)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -26,25 +26,36 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
 
     try {
       if (isLoginMode) {
-        // Executa a requisição de Login na API
-        const data = await loginUser({ email, password });
+        // Envia o email e a senha para a API de login
+        const data = await loginUser({ email, senha: password });
         
-        // Guarda os dados do utilizador no localStorage para sobreviver ao refresh da página
-        localStorage.setItem('user', JSON.stringify(data.user));
+        // Normaliza os dados do utilizador para garantir compatibilidade (independente de vir 'name' ou 'nome' do backend)
+        const loggedUser = {
+          id: data.user?.id,
+          name: data.user?.name || data.user?.nome || email.split('@')[0],
+          email: data.user?.email || email
+        };
+
+        // Guarda o utilizador normalizado no localStorage para garantir persistência no refresh (F5)
+        localStorage.setItem('user', JSON.stringify(loggedUser));
         
-        // Notifica o componente pai que o login foi bem-sucedido
-        onLoginSuccess(data.user);
+        // Atualiza o estado global/pai com o utilizador logado
+        onLoginSuccess(loggedUser);
         onClose(); // Fecha o modal
       } else {
-        // Executa a requisição de Registo na API
-        const data = await registerUser({ name, email, password });
+        // Envia 'nome' e 'senha' para o backend no registo
+        await registerUser({ 
+          nome: name, 
+          email, 
+          senha: password 
+        });
         
-        // Após registar com sucesso, muda automaticamente para o modo de login
+        // Após o registo bem-sucedido, muda para o modo de login e avisa o utilizador
         setIsLoginMode(true);
         setError('Registration successful! Please sign in with your new account.');
       }
     } catch (err) {
-      // Captura a mensagem de erro enviada pela API e exibe no formulário
+      // Captura o erro retornado pela API e exibe na interface
       setError(err.message || 'An error occurred. Please try again.');
     } finally {
       setLoading(false);
@@ -63,7 +74,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
           &times;
         </button>
 
-        {/* Cabeçalho do Modal dinâmico (Sign In / Sign Up) */}
+        {/* Cabeçalho do Modal dinâmico */}
         <h3 className="text-2xl font-bold text-gray-900 mb-2">
           {isLoginMode ? 'Sign In to Wanderlust' : 'Create an Account'}
         </h3>
@@ -71,17 +82,17 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
           {isLoginMode ? 'Welcome back! Please enter your details.' : 'Join us and start planning your next adventure.'}
         </p>
 
-        {/* Mensagem de Erro ou Alerta */}
+        {/* Caixa de alerta para erros ou sucesso */}
         {error && (
           <div className={`p-3 rounded-lg text-sm mb-4 ${error.includes('successful') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'}`}>
             {error}
           </div>
         )}
 
-        {/* Formulário */}
+        {/* Formulário de Autenticação */}
         <form onSubmit={handleSubmit} className="space-y-4">
           
-          {/* Campo de Nome (Apenas visível no modo de Registo) */}
+          {/* Campo de Nome (Exibido apenas no modo de Registo) */}
           {!isLoginMode && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
@@ -132,7 +143,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
           </button>
         </form>
 
-        {/* Alternador entre Login e Registo */}
+        {/* Alternador de abas */}
         <div className="text-center mt-6">
           <p className="text-sm text-gray-600">
             {isLoginMode ? "Don't have an account?" : "Already have an account?"}{' '}
