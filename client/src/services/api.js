@@ -96,3 +96,27 @@ export const registerUser = async (userData) => {
     throw err;
   }
 };
+
+// Função para enviar os dados de planeamento de viagem para a API
+export const planTrip = async (tripData) => {
+  try {
+    const response = await fetch(`${API_URL}/plan-trip`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(tripData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to plan trip');
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Erro no serviço planTrip:', error);
+    throw error;
+  }
+};
