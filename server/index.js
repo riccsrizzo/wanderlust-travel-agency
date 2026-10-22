@@ -31,6 +31,11 @@ app.use('/api/packages', packageRoutes);
 const testimonialRoutes = require('./routes/testimonials');
 app.use('/api/testimonials', testimonialRoutes);
 
+// Importa as rotas de planeamento de viagem
+const planTripRoutes = require('./routes/planTrip');
+// Regista a rota no Express
+app.use('/api/plan-trip', planTripRoutes);
+
 // Rota de teste inicial para verificar se o servidor está no ar
 app.get('/', (req, res) => {
   res.send('API do Wanderlust Travel Agency está rodando com sucesso!');
