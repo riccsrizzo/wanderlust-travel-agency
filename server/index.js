@@ -14,8 +14,15 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Configura os middlewares essenciais:
-// Permite que a API aceite requisições vindas de diferentes origens (CORS)
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      'http://localhost:5173',
+      'https://o-seu-frontend.vercel.app', // Substitua pelo URL real da Vercel mais tarde
+    ],
+    credentials: true,
+  }),
+);
 
 // Permite que o servidor interprete dados enviados em formato JSON no corpo das requisições (req.body)
 app.use(express.json());
@@ -28,12 +35,12 @@ app.use('/api/auth', authRoutes);
 const packageRoutes = require('./routes/packages');
 app.use('/api/packages', packageRoutes);
 
+// Importa e conecta as rotas de testemunhos
 const testimonialRoutes = require('./routes/testimonials');
 app.use('/api/testimonials', testimonialRoutes);
 
-// Importa as rotas de planeamento de viagem
+// Importa as rotas de planeamento de viagem e regista no Express
 const planTripRoutes = require('./routes/planTrip');
-// Regista a rota no Express
 app.use('/api/plan-trip', planTripRoutes);
 
 // Rota de teste inicial para verificar se o servidor está no ar
@@ -44,21 +51,4 @@ app.get('/', (req, res) => {
 // Inicia o servidor e escuta as requisições na porta configurada
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
-});
-
-app.post('/api/plan-trip', async (req, res) => {
-  try {
-    const { destination, travelDate, travelers, email, name } = req.body;
-    
-    // Lógica para guardar na base de dados ou simular o envio de email
-    console.log("Planeamento recebido:", { destination, travelDate, travelers, email, name });
-
-    res.status(201).json({
-      success: true,
-      message: 'Trip successfully planned! Check your email.'
-    });
-  } catch (error) {
-    console.error("Erro ao planear viagem:", error);
-    res.status(500).json({ success: false, message: 'Failed to submit trip plan.' });
-  }
 });
