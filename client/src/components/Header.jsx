@@ -1,101 +1,183 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useSession, signOut } from '../services/auth-client';
+import { AuthModal } from './AuthModal';
 
 export function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  // Obter o estado da sessão do utilizador em tempo real através do Better Auth
+  const { data: session, isPending } = useSession();
+
+  // Estados para controlar o modal de autenticação e o menu mobile
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Função para navegar e fazer scroll suave para as secções da página principal
+  const handleNavClick = (sectionId) => {
+    setIsMobileMenuOpen(false); // Fecha o menu mobile ao clicar
+    if (location.pathname !== '/') {
+      navigate('/');
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 150);
+    } else {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-xs">
-      <div className="max-w-full mx-auto px-6 sm:px-10 lg:px-16 h-16 flex items-center justify-between">
-        {/* Logotipo */}
-        <div className="font-bold text-xl tracking-tight text-sky-600">
-          <a href="#hero">Wanderlust</a>
+    <header className="bg-white shadow-sm sticky top-0 z-40">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        {/* Logótipo / Nome da Agência de Viagens */}
+        <div className="flex items-center space-x-2">
+          <Link to="/" className="text-xl font-extrabold text-sky-600">
+            Wanderlust
+          </Link>
         </div>
 
-        {/* Botão do X */}
-        <button
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="md:hidden relative w-8 h-8 flex items-center justify-center focus:outline-none cursor-pointer"
-          aria-label="Toggle navigation menu"
-        >
-          <span
-            className={`absolute h-0.5 w-6 bg-slate-800 rounded-full transition-all duration-300 ${
-              isMenuOpen ? 'rotate-45' : '-translate-y-2'
-            }`}
-          ></span>
-          <span
-            className={`absolute h-0.5 w-6 bg-slate-800 rounded-full transition-all duration-300 ${
-              isMenuOpen ? 'opacity-0 scale-0' : 'opacity-100 scale-100'
-            }`}
-          ></span>
-          <span
-            className={`absolute h-0.5 w-6 bg-slate-800 rounded-full transition-all duration-300 ${
-              isMenuOpen ? '-rotate-45' : 'translate-y-2'
-            }`}
-          ></span>
-        </button>
-
-        {/* Navegação Desktop */}
-        <nav className="hidden md:flex items-center gap-8">
-          <a
-            href="#hero"
-            className="text-slate-600 hover:text-sky-600 font-medium transition-colors"
-          >
+        {/* Links de navegação para Desktop */}
+        <nav className="hidden md:flex space-x-6 text-sm font-medium text-gray-600">
+          <Link onClick={() => handleNavClick('hero')} className="hover:text-sky-600 transition-colors">
             Home
-          </a>
-          <a
-            href="#packages"
-            className="text-slate-600 hover:text-sky-600 font-medium transition-colors"
+          </Link>
+          <button
+            onClick={() => handleNavClick('packages')}
+            className="hover:text-sky-600 transition-colors bg-transparent border-none cursor-pointer text-gray-600 font-medium text-sm"
           >
-            Packages
-          </a>
-          <a
-            href="#testimonials"
-            className="text-slate-600 hover:text-sky-600 font-medium transition-colors"
+            Destinations
+          </button>
+          <button
+            onClick={() => handleNavClick('about')}
+            className="hover:text-sky-600 transition-colors bg-transparent border-none cursor-pointer text-gray-600 font-medium text-sm"
           >
-            Testimonials
-          </a>
-          <a
-            href="#plan-trip"
-            className="bg-sky-600 text-white px-4 py-2 rounded-xl font-medium hover:bg-sky-700 transition-colors shadow-sm"
-          >
-            Plan Your Trip
-          </a>
+            About
+          </button>
         </nav>
+
+        {/* Gestão do Botão de Utilizador / Login (Desktop) */}
+        <div className="hidden md:flex items-center space-x-3">
+          {isPending ? (
+            <span className="text-sm text-gray-400">Loading...</span>
+          ) : session ? (
+            <div className="flex items-center space-x-4">
+              <span className="text-sm font-medium text-gray-700">
+                Hello, {session.user.name}
+              </span>
+              <button
+                onClick={async () => {
+                  await signOut();
+                  window.location.reload();
+                }}
+                className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200 transition-colors cursor-pointer"
+              >
+                Sign Out
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setIsAuthModalOpen(true)}
+              className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700 transition-colors cursor-pointer"
+            >
+              Sign In
+            </button>
+          )}
+        </div>
+
+        {/* Botões e Menu Hambúrguer para Mobile */}
+        <div className="flex md:hidden items-center space-x-3">
+          {!session && !isPending && (
+            <button
+              onClick={() => setIsAuthModalOpen(true)}
+              className="rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-700 transition-colors cursor-pointer"
+            >
+              Sign In
+            </button>
+          )}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="text-gray-600 hover:text-sky-600 focus:outline-none p-2 cursor-pointer"
+            aria-label="Toggle Menu"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              {isMobileMenuOpen ? (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              ) : (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              )}
+            </svg>
+          </button>
+        </div>
       </div>
 
-      {/* Menu Dropdown Mobile */}
-      {isMenuOpen && (
-        <nav className="md:hidden bg-white border-t border-slate-100 px-4 pt-4 pb-6 shadow-lg flex flex-col gap-4 text-center">
-          <a
-            href="#hero"
-            onClick={() => setIsMenuOpen(false)}
-            className="text-slate-600 hover:text-sky-600 font-medium py-2 transition-colors"
+      {/* Menu Deslizante para Mobile */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden bg-white border-b border-gray-100 px-4 pt-3 pb-5 space-y-3 shadow-lg">
+          <Link
+            onClick={() => handleNavClick("hero")}
+            className="block text-gray-600 hover:text-sky-600 font-medium py-2 transition-colors"
           >
             Home
-          </a>
-          <a
-            href="#packages"
-            onClick={() => setIsMenuOpen(false)}
-            className="text-slate-600 hover:text-sky-600 font-medium py-2 transition-colors"
+          </Link>
+          <button
+            onClick={() => handleNavClick('packages')}
+            className="block w-full text-left text-gray-600 hover:text-sky-600 font-medium py-2 bg-transparent border-none cursor-pointer"
           >
-            Packages
-          </a>
-          <a
-            href="#testimonials"
-            onClick={() => setIsMenuOpen(false)}
-            className="text-slate-600 hover:text-sky-600 font-medium py-2 transition-colors"
+            Destinations
+          </button>
+          <button
+            onClick={() => handleNavClick('about')}
+            className="block w-full text-left text-gray-600 hover:text-sky-600 font-medium py-2 bg-transparent border-none cursor-pointer"
           >
-            Testimonials
-          </a>
-          <a
-            href="#plan-trip"
-            onClick={() => setIsMenuOpen(false)}
-            className="bg-sky-600 text-white px-4 py-2.5 rounded-xl font-medium hover:bg-sky-700 transition-colors shadow-sm block"
-          >
-            Plan Your Trip
-          </a>
-        </nav>
+            About
+          </button>
+
+          {session && (
+            <div className="pt-3 border-t border-gray-100 flex flex-col space-y-2">
+              <span className="text-sm font-medium text-gray-700">
+                Hello, {session.user.name}
+              </span>
+              <button
+                onClick={async () => {
+                  await signOut();
+                  window.location.reload();
+                }}
+                className="w-full text-center rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200 transition-colors cursor-pointer"
+              >
+                Sign Out
+              </button>
+            </div>
+          )}
+        </div>
       )}
+
+      {/* Modal de Autenticação (Login / Registo) */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+      />
     </header>
   );
 }

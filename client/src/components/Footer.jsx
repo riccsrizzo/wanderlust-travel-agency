@@ -1,7 +1,7 @@
 // src/components/Footer.jsx
 export function Footer() {
   return (
-    <footer className="footer bg-[#090d16] text-[#64748b] py-8 text-[0.9rem]">
+    <footer id="about" className="footer bg-[#090d16] text-[#64748b] py-8 text-[0.9rem]">
       <div className="max-w-full mx-auto px-6 sm:px-10 lg:px-16 footer-content flex flex-wrap justify-between items-center gap-4">
         <p>&copy; 2026 Wanderlust Travel Agency. All rights reserved.</p>
         <ul className="footer-links flex gap-6 list-none m-0 p-0">
