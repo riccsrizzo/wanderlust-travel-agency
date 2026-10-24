@@ -1,173 +1,209 @@
-import React, { useState, useEffect } from 'react';
-// Importa a função fetchPackages do nosso serviço de API centralizado
-import { fetchPackages } from '../services/api';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { fetchPackagesAndTestimonials } from '../services/api';
+import { useSession } from '../services/auth-client';
 
-export default function MainContent() {
-  // Estado para armazenar a lista completa de pacotes vindos da API do PostgreSQL
-  const [destinations, setDestinations] = useState([]);
-  
-  // Estado para controlar se os dados ainda estão a ser carregados (loading)
+export function MainContent() {
+  const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  // Estado para guardar eventuais erros de comunicação com o servidor
   const [error, setError] = useState(null);
 
-  // Estado para controlar o filtro selecionado (pode ser 'All', um continente ou 'Favorites')
-  const [selectedCategory, setSelectedCategory] = useState('All');
-
-  // Estado para guardar os IDs dos destinos favoritados pelo utilizador (ex: ['paris', 'bali'])
+  // Estados de filtro e favoritos
+  const [selectedContinent, setSelectedContinent] = useState('All');
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [favorites, setFavorites] = useState([]);
 
-  // O useEffect é executado automaticamente assim que o componente é montado na tela
+  // Obter sessão atual do Better Auth
+  const { data: session } = useSession();
+
+  // Carregar pacotes do backend
   useEffect(() => {
-    // Função assíncrona interna para buscar os pacotes da API
-    const loadPackages = async () => {
+    async function loadData() {
       try {
-        setLoading(true); // Ativa o carregamento
-        const data = await fetchPackages(); // Faz o fetch GET na API (/api/packages)
-        setDestinations(data); // Guarda os pacotes no estado
-        setError(null);
+        setLoading(true);
+        const data = await fetchPackagesAndTestimonials();
+        setPackages(data.packages || []);
       } catch (err) {
-        console.error('Erro ao carregar destinos no componente:', err);
-        setError('Não foi possível carregar os pacotes de viagem. Tente novamente mais tarde.');
+        setError('Failed to load travel packages.');
+        console.error(err);
       } finally {
-        setLoading(false); // Desativa o carregamento
+        setLoading(false);
       }
-    };
+    }
+    loadData();
+  }, []);
 
-    loadPackages();
-  }, []); // Roda apenas uma vez ao montar o componente
+  // Gerir favoritos com base na sessão
+  useEffect(() => {
+    if (session?.user?.id) {
+      const savedFavorites = localStorage.getItem(`favorites_${session.user.id}`);
+      if (savedFavorites) {
+        setFavorites(JSON.parse(savedFavorites));
+      }
+    } else {
+      setFavorites([]);
+      setShowFavoritesOnly(false);
+    }
+  }, [session]);
 
-  // Função para alternar o estado de favorito de um destino (adicionar ou remover da lista)
-  const toggleFavorite = (id) => {
-    setFavorites(prevFavorites => 
-      prevFavorites.includes(id)
-        ? prevFavorites.filter(favId => favId !== id) // Se já for favorito, remove
-        : [...prevFavorites, id] // Se não for, adiciona à lista de favoritos
-    );
+  // Alternar favorito
+  const toggleFavorite = (slug, e) => {
+    e.preventDefault();
+    
+    if (!session) {
+      alert('You must be signed in to save favorites.');
+      return;
+    }
+
+    let updatedFavorites;
+    if (favorites.includes(slug)) {
+      updatedFavorites = favorites.filter((fav) => fav !== slug);
+    } else {
+      updatedFavorites = [...favorites, slug];
+    }
+
+    setFavorites(updatedFavorites);
+    localStorage.setItem(`favorites_${session.user.id}`, JSON.stringify(updatedFavorites));
   };
 
-  // Lista de opções disponíveis para os botões de filtro (incluindo a nova opção 'Favorites')
-  const filterOptions = ['All', 'Europe', 'Asia', 'South America', 'Oceania', 'Favorites'];
+  if (loading) {
+    return <div className="text-center py-10 text-gray-600">Loading travel packages...</div>;
+  }
 
-  // Lógica de filtragem dos destinos com base na opção selecionada
-  const filteredDestinations = destinations.filter(dest => {
-    // Se o filtro selecionado for 'All', exibe todos os destinos
-    if (selectedCategory === 'All') return true;
+  if (error) {
+    return <div className="text-center py-10 text-red-500">{error}</div>;
+  }
+
+  const continents = ['All', 'Europe', 'Asia', 'South America', 'Oceania'];
+
+  // Filtragem flexível de continentes
+  const filteredPackages = packages.filter((pkg) => {
+    const pkgCategory = (pkg.category || '').trim().toLowerCase();
+    const selectedCategory = selectedContinent.trim().toLowerCase();
+
+    const matchesContinent =
+      selectedContinent === 'All' || pkgCategory === selectedCategory;
+
+    const matchesFavorites = !showFavoritesOnly || favorites.includes(pkg.slug);
     
-    // Se o filtro selecionado for 'Favorites', exibe apenas os destinos cujos IDs estão no array de favoritos
-    if (selectedCategory === 'Favorites') return favorites.includes(dest.id);
-    
-    // Caso contrário, filtra pelo continente/categoria correspondente
-    return dest.category.toLowerCase() === selectedCategory.toLowerCase();
+    return matchesContinent && matchesFavorites;
   });
 
-  // Se estiver a carregar, exibe o indicador visual
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center py-20">
-        <p className="text-lg text-gray-600 animate-pulse">A carregar pacotes de viagem do servidor...</p>
-      </div>
-    );
-  }
-
-  // Se houver erro, exibe a mensagem de erro
-  if (error) {
-    return (
-      <div className="flex justify-center items-center py-20">
-        <p className="text-lg text-red-500">{error}</p>
-      </div>
-    );
-  }
-
   return (
-    <main className="py-12 px-4 max-w-7xl mx-auto">
-      <div className="text-center mb-10">
-        <h2 className="text-3xl font-bold text-gray-800">Explore Our Tour Packages</h2>
-        <p className="text-gray-600 mt-2">Dados em tempo real da base de dados PostgreSQL (Neon)</p>
-      </div>
+    <section id='packages' className="py-12 px-4 max-w-7xl mx-auto">
+      {/* Cabeçalho e Filtros Centralizados */}
+      <div className="flex flex-col items-center text-center mb-10 gap-6">
+        <h2 className="text-3xl font-bold text-gray-900">Featured Destinations</h2>
 
-      {/* Botões de Filtro (Continentes + Opção de Favoritos) */}
-      <div className="flex flex-wrap justify-center gap-3 mb-10">
-        {filterOptions.map((option) => (
+        {/* Botões de Filtros Centralizados */}
+        <div className="flex flex-wrap justify-center items-center gap-2">
+          {continents.map((continent) => (
+            <button
+              key={continent}
+              onClick={() => {
+                setSelectedContinent(continent);
+                setShowFavoritesOnly(false);
+              }}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
+                selectedContinent === continent && !showFavoritesOnly
+                  ? 'bg-sky-600 text-white shadow-sm'
+                  : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+              }`}
+            >
+              {continent}
+            </button>
+          ))}
+
+          {/* Botão de Favoritos */}
           <button
-            key={option}
-            onClick={() => setSelectedCategory(option)}
-            className={`px-5 py-2 rounded-full font-medium transition-colors flex items-center gap-2 ${
-              selectedCategory === option
-                ? 'bg-blue-600 text-white shadow-md'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            onClick={() => {
+              if (!session) {
+                alert('Please sign in to view your favorites.');
+                return;
+              }
+              setShowFavoritesOnly(!showFavoritesOnly);
+            }}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-1.5 cursor-pointer ${
+              showFavoritesOnly
+                ? 'bg-sky-700 text-white shadow-sm'
+                : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
             }`}
           >
-            {/* Se for a opção de favoritos, adiciona um ícone de coração pequeno no botão */}
-            {option === 'Favorites' && (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 fill-current text-red-500" viewBox="0 0 24 24">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-              </svg>
+            <span>❤️ Favorites</span>
+            {session && (
+              <span className="ml-1 bg-sky-100 text-sky-800 text-xs px-2 py-0.5 rounded-full font-bold">
+                {favorites.length}
+              </span>
             )}
-            {option}
-            {/* Mostra um contador de quantos favoritos o utilizador tem */}
-            {option === 'Favorites' && ` (${favorites.length})`}
           </button>
-        ))}
+        </div>
       </div>
 
-      {/* Mensagem caso o utilizador selecione a aba de favoritos e não tenha nenhum selecionado */}
-      {selectedCategory === 'Favorites' && filteredDestinations.length === 0 && (
-        <div className="text-center py-16 bg-gray-50 rounded-2xl border border-dashed border-gray-200 max-w-xl mx-auto">
-          <p className="text-gray-500 text-lg">Ainda não adicionou nenhum destino aos favoritos.</p>
-          <p className="text-gray-400 text-sm mt-1">Clique no ícone de coração nos cards de viagem para os guardar aqui!</p>
+      {/* Grelha de Pacotes */}
+      {filteredPackages.length === 0 ? (
+        <div className="text-center py-16 text-gray-500 bg-white rounded-lg border border-gray-100 shadow-sm">
+          No destinations found matching your criteria.
         </div>
-      )}
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredPackages.map((pkg) => {
+            const isFav = favorites.includes(pkg.slug);
+            
+            // Garantir conversão numérica correta para exibir o $ em todos os preços
+            const numericPrice = Number(pkg.price);
+            const displayPrice = !isNaN(numericPrice) ? `$${numericPrice.toLocaleString()}` : `$${pkg.price}`;
 
-      {/* Exibição dos cards de destinos dinâmicos filtrados */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {filteredDestinations.map((dest) => {
-          // Verifica se este destino específico está marcado como favorito
-          const isFavorite = favorites.includes(dest.id);
-
-          return (
-            <div key={dest.id} className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow relative">
-              
-              {/* Imagem do destino */}
-              <img src={dest.image} alt={dest.title} className="w-full h-48 object-cover" />
-
-              {/* Botão de Favorito posicionado no canto superior direito da imagem */}
-              <button
-                onClick={() => toggleFavorite(dest.id)}
-                className="absolute top-3 right-3 bg-white/80 backdrop-blur-sm p-2 rounded-full shadow hover:bg-white transition-colors"
-                title={isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+            return (
+              <div 
+                key={pkg.id || pkg.slug} 
+                className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100 flex flex-col h-full hover:shadow-lg transition-shadow relative"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className={`h-6 w-6 transition-colors ${isFavorite ? 'text-red-500 fill-red-500' : 'text-gray-400 hover:text-gray-600'}`}
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth="2"
+                {/* Botão de Favorito */}
+                <button
+                  onClick={(e) => toggleFavorite(pkg.slug, e)}
+                  className="absolute top-3 right-3 bg-white/90 hover:bg-white p-2 rounded-full shadow-md transition-transform active:scale-95 cursor-pointer z-10"
+                  title={isFav ? "Remove from favorites" : "Add to favorites"}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                  />
-                </svg>
-              </button>
+                  <span className={`text-lg ${isFav ? 'text-red-500' : 'text-gray-400'}`}>
+                    {isFav ? '❤️' : '🤍'}
+                  </span>
+                </button>
 
-              {/* Conteúdo do Card */}
-              <div className="p-6">
-                <span className="text-sm font-semibold text-blue-600 uppercase tracking-wide">{dest.category}</span>
-                <h3 className="text-xl font-bold text-gray-900 mt-1">{dest.title}</h3>
-                <p className="text-gray-600 text-sm mt-2 line-clamp-3">{dest.description}</p>
+                {/* Imagem do destino */}
+                {pkg.image && (
+                  <img src={pkg.image} alt={pkg.title} className="w-full h-48 object-cover" />
+                )}
                 
-                <div className="mt-4 flex items-center justify-between">
-                  <span className="text-lg font-bold text-green-600">{dest.price}</span>
-                  <span className="text-xs bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full">{dest.duration}</span>
+                {/* Conteúdo interno */}
+                <div className="p-6 flex flex-col flex-1 justify-between">
+                  <div>
+                    <span className="text-xs font-semibold text-sky-600 uppercase tracking-wider bg-sky-50 px-2.5 py-0.5 rounded-full">
+                      {pkg.category}
+                    </span>
+                    <h3 className="text-xl font-semibold text-gray-800 mt-2 mb-2">{pkg.title}</h3>
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-3">{pkg.description}</p>
+                  </div>
+
+                  {/* Preço formatado com $ garantido */}
+                  <div className="flex justify-between items-center pt-4 border-t border-gray-100 mt-auto">
+                    <span className="text-sky-600 font-bold text-lg">
+                      {displayPrice}
+                    </span>
+                    <Link 
+                      to={`/packages/${pkg.slug}`}
+                      className="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md text-sm transition-colors shadow-sm inline-block text-center cursor-pointer"
+                    >
+                      View Details
+                    </Link>
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
-    </main>
+            );
+          })}
+        </div>
+      )}
+    </section>
   );
 }
+
+export default MainContent;

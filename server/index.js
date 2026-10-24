@@ -45,3 +45,20 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
+
+app.post('/api/plan-trip', async (req, res) => {
+  try {
+    const { destination, travelDate, travelers, email, name } = req.body;
+    
+    // Lógica para guardar na base de dados ou simular o envio de email
+    console.log("Planeamento recebido:", { destination, travelDate, travelers, email, name });
+
+    res.status(201).json({
+      success: true,
+      message: 'Trip successfully planned! Check your email.'
+    });
+  } catch (error) {
+    console.error("Erro ao planear viagem:", error);
+    res.status(500).json({ success: false, message: 'Failed to submit trip plan.' });
+  }
+});

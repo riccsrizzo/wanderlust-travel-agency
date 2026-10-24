@@ -25,8 +25,8 @@ export default function Testimonials() {
         setTestimonials(data); // Guarda os dados reais obtidos do banco Neon no estado
         setError(null);       // Limpa qualquer erro anterior
       } catch (err) {
-        console.error('Erro ao carregar testemunhos no componente:', err);
-        setError('Não foi possível carregar os depoimentos. Tente novamente mais tarde.');
+        console.error('Error loading testimonials into component:', err);
+        setError('The statements could not be loaded. Please try again later.');
       } finally {
         setLoading(false); // Desativa o carregamento, independentemente de sucesso ou erro
       }
@@ -39,7 +39,7 @@ export default function Testimonials() {
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
-        <p className="text-gray-500 animate-pulse">A carregar depoimentos de clientes...</p>
+        <p className="text-gray-500 animate-pulse">Loading...</p>
       </div>
     );
   }
@@ -54,11 +54,10 @@ export default function Testimonials() {
   }
 
   return (
-    <section className="py-16 bg-gray-50 px-4">
+    <section id="testimonials" className="py-16 bg-gray-50 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-gray-800">What Our Travelers Say</h2>
-          <p className="text-gray-600 mt-2">Depoimentos reais obtidos da base de dados PostgreSQL (Neon)</p>
         </div>
 
         {/* Exibição dos cards de testemunhos dinâmicos vindos da API */}
