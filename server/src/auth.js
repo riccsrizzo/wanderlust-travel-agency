@@ -4,8 +4,8 @@ import { db } from './db/index.js';
 import * as schema from './db/schema.js';
 
 export const auth = betterAuth({
-  // Atualizado para a porta 5000, onde o servidor está a correr
-  baseURL: 'http://localhost:5000',
+  // Usa a variável de ambiente no Render e o localhost para testes locais
+  baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:5000',
 
   database: drizzleAdapter(db, {
     provider: 'pg',
@@ -18,6 +18,10 @@ export const auth = betterAuth({
     enabled: true,
   },
 
-  // Permitir origens seguras incluindo a porta 5000 e o frontend Vite (5173)
-  trustedOrigins: ['http://localhost:5173', 'http://localhost:5000'],
+  // Permite requisições vindas do frontend local e do domínio oficial na Vercel
+  trustedOrigins: [
+    'http://localhost:5173',
+    'http://localhost:5000',
+    'https://wanderlust-travel-agency-sigma.vercel.app', // Domínio real da Vercel
+  ],
 });
