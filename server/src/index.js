@@ -14,7 +14,10 @@ app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 // Configurar o CORS para permitir pedidos do frontend Vite (porta 5173)
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: [
+      'http://localhost:5173',
+      'https://wanderlust-travel-agency-sigma.vercel.app', //link real da Vercel
+    ],
     credentials: true,
   }),
 );
