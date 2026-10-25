@@ -4,7 +4,7 @@ export function Hero() {
       id="hero"
       className="relative bg-slate-900 text-white py-24 sm:py-32 flex items-center justify-center min-h-[80vh] bg-cover bg-center bg-no-repeat"
       style={{
-        backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.65)), url("http://localhost:5000/uploads/BackImage.avif")`,
+        backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.65)), url("https://wanderlust-travel-agency-i6l9.onrender.com/uploads/BackImage.avif")`,
       }}
     >
       <div className="max-w-full w-full mx-auto px-6 sm:px-10 lg:px-16 text-center">
