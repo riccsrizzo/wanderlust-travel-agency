@@ -95,3 +95,37 @@ export const testimonials = pgTable('testimonials', {
   image: text('image').notNull(),
   destination: text('destination').notNull(),
 });
+
+// ==========================================
+// ORDERS TABLE / TABELA DE ENCOMENDAS
+// ==========================================
+// Stores high-level information about each purchase transaction.
+// Armazena informações gerais sobre cada transação de compra.
+export const orders = pgTable('orders', {
+  id: serial('id').primaryKey(), // Identificador único incremental da encomenda
+  userId: text('user_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }), // Relacionamento com o utilizador autenticado
+  stripeCheckoutSessionId: text('stripe_checkout_session_id').notNull().unique(), // ID da sessão do Stripe Checkout para evitar registros duplicados
+  status: text('status').notNull().default('pending'), // Estado do pagamento ('pending', 'paid', 'failed')
+  totalAmount: integer('total_amount').notNull(), // Valor total da compra em cêntimos (ex: 15000 = $150.00)
+  createdAt: timestamp('created_at').defaultNow().notNull(), // Data e hora de criação do pedido
+});
+
+// ==========================================
+// ORDER ITEMS TABLE / TABELA DE ITENS DA ENCOMENDA
+// ==========================================
+// Stores individual items/packages included in a specific order.
+// Armazena os itens/pacotes de viagem comprados em cada encomenda.
+export const orderItems = pgTable('order_items', {
+  id: serial('id').primaryKey(), // Identificador único do item da encomenda
+  orderId: integer('order_id')
+    .notNull()
+    .references(() => orders.id, { onDelete: 'cascade' }), // Chave estrangeira ligando à tabela de encomendas
+  packageId: integer('package_id')
+    .notNull()
+    .references(() => packages.id, { onDelete: 'cascade' }), // Chave estrangeira ligando ao pacote de viagem adquirido
+  quantity: integer('quantity').notNull().default(1), // Quantidade adquirida do pacote
+  price: integer('price').notNull(), // Preço unitário em cêntimos gravado no momento da compra (evita alterações retroativas)
+  createdAt: timestamp('created_at').defaultNow().notNull(), // Data de registo do item
+});
