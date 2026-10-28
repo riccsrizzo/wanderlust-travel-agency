@@ -13,13 +13,31 @@ const PORT = process.env.PORT || 5000;
 // Servir imagens estáticas da pasta uploads / Serve static images from uploads folder
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
-// Configurar o CORS para permitir pedidos do frontend Vite (porta 5173) e Vercel
+// ==========================================
+// DYNAMIC CORS CONFIGURATION / CONFIGURAÇÃO DINÂMICA DE CORS
+// ==========================================
+// Automatically allows localhost, main production, and any Vercel preview deployment URL (*.vercel.app)
+// Permite automaticamente o localhost e qualquer URL de preview ou produção da Vercel (*.vercel.app)
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://wanderlust-travel-agency-sigma.vercel.app',
+];
+
 app.use(
   cors({
-    origin: [
-      'http://localhost:5173',
-      'https://wanderlust-travel-agency-sigma.vercel.app', // link real da Vercel
-    ],
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, postman, or server-to-server)
+      // Permite pedidos sem origem (ex: ferramentas de teste ou requisições internas)
+      if (!origin) return callback(null, true);
+
+      // Check if origin is explicitly allowed or ends with .vercel.app
+      // Verifica se a origem está na lista ou se termina com .vercel.app
+      if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   }),
 );
