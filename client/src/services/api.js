@@ -1,5 +1,5 @@
 // ==========================================
-// DYNAMIC API BASE URL / URL BASE DINÂMICO DA API
+// DYNAMIC API BASE URL / URL BASE DINÂMICA DA API
 // ==========================================
 // Uses environment variable VITE_API_URL if available, otherwise falls back to the Render backend URL.
 // Usa a variável de ambiente VITE_API_URL se disponível, caso contrário usa a URL do backend no Render.
@@ -8,7 +8,7 @@ const BASE_URL =
   'https://wanderlust-travel-agency-1619.onrender.com';
 
 // Ensure the URL correctly points to the /api endpoint
-// Garante que a URL aponta corretamente para o endpoint /api sem duplicar
+// Garante que a URL aponta corretamente para o endpoint /api sem duplicar barras
 const API_URL = BASE_URL.endsWith('/api')
   ? BASE_URL
   : `${BASE_URL.replace(/\/$/, '')}/api`;
