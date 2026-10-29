@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchPackageBySlug } from '../services/api';
+import { fetchPackageBySlug, getImageUrl } from '../services/api'; // 💡 Importado getImageUrl
 
 export function PackageDetail() {
   const { slug } = useParams();
@@ -8,9 +8,8 @@ export function PackageDetail() {
   const [pkg, setPkg] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isProcessing, setIsProcessing] = useState(false); // Estado de carregamento do pagamento / Payment loading state
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  // Carregar os dados do pacote específico ao montar o componente ou alterar o slug
   useEffect(() => {
     async function loadPackageDetails() {
       try {
@@ -27,16 +26,12 @@ export function PackageDetail() {
     loadPackageDetails();
   }, [slug]);
 
-  // ==========================================
-  // HANDLE STRIPE CHECKOUT REDIRECT / GERAR CHECKOUT DO STRIPE
-  // ==========================================
-  // Calls the backend checkout route and redirects the user to the Stripe hosted payment page.
-  // Chama a rota de checkout do backend e redireciona o utilizador para a página de pagamento do Stripe.
   const handleBuyNow = async (packageId) => {
     try {
       setIsProcessing(true);
       const backendUrl =
-        import.meta.env.VITE_API_URL || 'http://localhost:5000';
+        import.meta.env.VITE_API_URL ||
+        'https://wanderlust-travel-agency-i6l9.onrender.com';
 
       const response = await fetch(
         `${backendUrl}/api/checkout/create-checkout-session`,
@@ -45,14 +40,13 @@ export function PackageDetail() {
           headers: {
             'Content-Type': 'application/json',
           },
-          credentials: 'include', // CRITICAL: Sends Better Auth session cookies / Envia os cookies de sessão do Better Auth
+          credentials: 'include',
           body: JSON.stringify({ packageId, quantity: 1 }),
         },
       );
 
       const data = await response.json();
 
-      // If unauthorized or error, alert user / Se não autorizado ou erro, alerta o utilizador
       if (!response.ok) {
         alert(
           data.error ||
@@ -62,7 +56,6 @@ export function PackageDetail() {
         return;
       }
 
-      // Redirect user to Stripe secure checkout / Redireciona o utilizador para o checkout seguro do Stripe
       if (data.url) {
         window.location.href = data.url;
       }
@@ -91,7 +84,6 @@ export function PackageDetail() {
 
   return (
     <div className="max-w-4xl mx-auto py-12 px-4 flex-1">
-      {/* Botão para voltar à página anterior */}
       <button
         onClick={() => navigate(-1)}
         className="mb-6 text-sky-600 hover:text-sky-700 font-medium flex items-center gap-2 transition-colors cursor-pointer"
@@ -100,12 +92,14 @@ export function PackageDetail() {
       </button>
 
       <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-100">
-        {/* Imagem de destaque do destino */}
-        <img
-          src={pkg.image}
-          alt={pkg.title}
-          className="w-full h-96 object-cover"
-        />
+        {/* Imagem de destaque do destino com getImageUrl aplicado */}
+        {pkg.image && (
+          <img
+            src={getImageUrl(pkg.image)}
+            alt={pkg.title}
+            className="w-full h-96 object-cover"
+          />
+        )}
 
         <div className="p-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
@@ -131,7 +125,6 @@ export function PackageDetail() {
             {pkg.description}
           </p>
 
-          {/* Secção de reserva / Checkout Button */}
           <div className="border-t border-gray-100 pt-6 flex justify-end">
             <button
               onClick={() => handleBuyNow(pkg.id)}
