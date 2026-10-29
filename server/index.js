@@ -13,14 +13,31 @@ const app = express();
 // Define a porta do servidor obtida do .env ou utiliza 5000 como padrão
 const PORT = process.env.PORT || 5000;
 
-// Configura os middlewares essenciais:
+// Configura os middlewares essenciais com suporte dinâmico a previews da Vercel:
 app.use(
   cors({
-    origin: [
-      'http://localhost:5173',
-      'https://o-seu-frontend.vercel.app', // Substitua pelo URL real da Vercel mais tarde
-    ],
-    credentials: true,
+    origin: (origin, callback) => {
+      // Permite requisições sem origem (ex: ferramentas de teste como Postman ou cURL)
+      if (!origin) return callback(null, true);
+
+      // Lista de origens estáticas permitidas
+      const allowedOrigins = [
+        'http://localhost:5173',
+        'http://localhost:5000',
+        'https://wanderlust-travel-agency-sigma.vercel.app', // Produção principal
+      ];
+
+      // Permite automaticamente qualquer preview gerado pela Vercel (*.vercel.app)
+      const isVercelPreview = origin.endsWith('.vercel.app');
+      const isAllowed = allowedOrigins.includes(origin) || isVercelPreview;
+
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true, // OBRIGATÓRIO para envio de cookies cross-domain (Vercel <-> Render)
   }),
 );
 

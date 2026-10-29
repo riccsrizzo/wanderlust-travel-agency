@@ -6,12 +6,26 @@ import packagesRouter from './routes/packages.js';
 import checkoutRouter from './routes/checkout.js'; // Novo router de checkout do Stripe / New Stripe checkout router
 import webhookRouter from './routes/webhook.js'; // Novo router de webhook do Stripe / New Stripe webhook router
 import path from 'path';
+import fs from 'fs'; // Importar o file system para validação automática da pasta uploads
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Servir imagens estáticas da pasta uploads / Serve static images from uploads folder
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+// ==========================================
+// SERVIR IMAGENS ESTÁTICAS DE FORMA INTELIGENTE
+// ==========================================
+// Procura automaticamente se a pasta 'uploads' está em server/uploads ou na raiz
+const possibleUploadsPaths = [
+  path.join(process.cwd(), 'server', 'uploads'),
+  path.join(process.cwd(), 'uploads'),
+];
+
+const uploadsDir =
+  possibleUploadsPaths.find((dir) => fs.existsSync(dir)) ||
+  possibleUploadsPaths[0];
+
+app.use('/uploads', express.static(uploadsDir));
+console.log(`📁 Servindo imagens estáticas a partir de: ${uploadsDir}`);
 
 // ==========================================
 // DYNAMIC CORS CONFIGURATION / CONFIGURAÇÃO DINÂMICA DE CORS
