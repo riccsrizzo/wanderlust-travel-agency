@@ -20,7 +20,7 @@ router.post('/create-checkout-session', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'Package ID is required.' });
     }
 
-    // STRICT RULE: Never trust the price sent from the browser. Look up the real price from the database!
+    // Procura o pacote na base de dados
     const [travelPackage] = await db
       .select()
       .from(packages)
@@ -31,12 +31,21 @@ router.post('/create-checkout-session', requireAuth, async (req, res) => {
       return res.status(404).json({ error: 'Travel package not found.' });
     }
 
-    const rawPrice = parseFloat(travelPackage.price.replace(/[^0-9.]/g, ''));
+    // 💡 Tratamento seguro do preço (funciona quer venha como string ou número)
+    const rawPrice =
+      typeof travelPackage.price === 'string'
+        ? parseFloat(travelPackage.price.replace(/[^0-9.]/g, ''))
+        : Number(travelPackage.price);
+
+    if (isNaN(rawPrice)) {
+      return res.status(500).json({ error: 'Invalid package price format.' });
+    }
+
     const unitAmountInCents = Math.round(rawPrice * 100);
     const totalAmount = unitAmountInCents * quantity;
     const tempSessionId = `temp_${Date.now()}`;
 
-    // 1. Create the order record in the database with 'pending' status
+    // 1. Cria a ordem na base de dados com status 'pending'
     const [newOrder] = await db
       .insert(orders)
       .values({
@@ -47,7 +56,7 @@ router.post('/create-checkout-session', requireAuth, async (req, res) => {
       })
       .returning();
 
-    // 2. Create the associated order item record
+    // 2. Cria o item associado à ordem
     await db.insert(orderItems).values({
       orderId: newOrder.id,
       packageId: travelPackage.id,
@@ -55,7 +64,22 @@ router.post('/create-checkout-session', requireAuth, async (req, res) => {
       price: unitAmountInCents,
     });
 
-    // 3. Create a real Stripe Checkout Session
+    // 💡 Converte a imagem relativa numa URL absoluta obrigatória para o Stripe
+    let packageImageUrl = travelPackage.image;
+    if (packageImageUrl) {
+      if (
+        !packageImageUrl.startsWith('http://') &&
+        !packageImageUrl.startsWith('https://')
+      ) {
+        const backendUrl =
+          process.env.BETTER_AUTH_URL ||
+          'https://wanderlust-travel-agency-i6l9.onrender.com';
+        const cleanBackend = backendUrl.replace(/\/api$/, '');
+        packageImageUrl = `${cleanBackend}${packageImageUrl.startsWith('/') ? '' : '/'}${packageImageUrl}`;
+      }
+    }
+
+    // 3. Cria a sessão real de Checkout no Stripe
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
@@ -64,8 +88,9 @@ router.post('/create-checkout-session', requireAuth, async (req, res) => {
             currency: 'usd',
             product_data: {
               name: travelPackage.title,
-              description: travelPackage.description,
-              images: travelPackage.image ? [travelPackage.image] : [],
+              description:
+                travelPackage.description || 'Travel package experience',
+              images: packageImageUrl ? [packageImageUrl] : [],
             },
             unit_amount: unitAmountInCents,
           },
@@ -73,14 +98,14 @@ router.post('/create-checkout-session', requireAuth, async (req, res) => {
         },
       ],
       mode: 'payment',
-      success_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/cancel`,
+      success_url: `${process.env.FRONTEND_URL || 'https://wanderlust-travel-agency-sigma.vercel.app'}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.FRONTEND_URL || 'https://wanderlust-travel-agency-sigma.vercel.app'}/packages/${travelPackage.slug}`,
       metadata: {
         orderId: newOrder.id.toString(),
       },
     });
 
-    // 4. Update the order with the real Stripe Checkout Session ID
+    // 4. Atualiza a ordem com o ID real da sessão do Stripe
     await db
       .update(orders)
       .set({ stripeCheckoutSessionId: session.id })
