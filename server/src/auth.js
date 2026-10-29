@@ -24,6 +24,8 @@ export const auth = betterAuth({
     'http://localhost:5000',
     'https://wanderlust-travel-agency-sigma.vercel.app',
     'https://wanderlust-travel-agency-i6l9.onrender.com',
+    // Permite dinamicamente qualquer URL de preview ou produção da Vercel (*.vercel.app)
+    (origin) => origin && origin.endsWith('.vercel.app'),
   ],
 
   // 💡 Habilitar suporte a cookies cross-site (Render <-> Vercel)
