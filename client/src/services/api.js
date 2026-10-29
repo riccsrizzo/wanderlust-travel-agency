@@ -1,19 +1,26 @@
 // ==========================================
 // DYNAMIC API BASE URL / URL BASE DINÂMICA DA API
 // ==========================================
-// Uses environment variable VITE_API_URL if available, otherwise falls back to the Render backend URL.
-// Usa a variável de ambiente VITE_API_URL se disponível, caso contrário usa a URL do backend no Render.
 const BASE_URL =
   import.meta.env.VITE_API_URL ||
-  'https://wanderlust-travel-agency-1619.onrender.com';
-
-// Ensure the URL correctly points to the /api endpoint
-// Garante que a URL aponta corretamente para o endpoint /api sem duplicar barras
+  'https://wanderlust-travel-agency-i6l9.onrender.com';
 const API_URL = BASE_URL.endsWith('/api')
   ? BASE_URL
   : `${BASE_URL.replace(/\/$/, '')}/api`;
 
-// Obter todos os pacotes de viagem / Fetch all travel packages
+// 💡 FUNÇÃO OBRIGATÓRIA EXPORTADA PARA CORRIGIR AS IMAGENS
+export function getImageUrl(imagePath) {
+  if (!imagePath) return '';
+  // Se já for uma URL absoluta (ex: Unsplash), retorna como está
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+    return imagePath;
+  }
+  // Caso contrário, adiciona a URL base do Render ao caminho relativo
+  const cleanBackend = BASE_URL.replace(/\/api$/, '');
+  return `${cleanBackend}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
+}
+
+// Obter todos os pacotes de viagem e testemunhos
 export async function fetchPackagesAndTestimonials() {
   const response = await fetch(`${API_URL}/packages`);
   if (!response.ok) {
@@ -22,7 +29,7 @@ export async function fetchPackagesAndTestimonials() {
   return response.json();
 }
 
-// Obter os detalhes de um pacote de viagem específico através do slug / Fetch package details by slug
+// Obter os detalhes de um pacote de viagem específico através do slug
 export async function fetchPackageBySlug(slug) {
   const response = await fetch(`${API_URL}/packages/${slug}`);
   if (!response.ok) {
@@ -31,7 +38,7 @@ export async function fetchPackageBySlug(slug) {
   return response.json();
 }
 
-// Obter os testemunhos dos utilizadores / Fetch user testimonials
+// Obter os testemunhos dos utilizadores
 export async function fetchTestimonials() {
   const response = await fetch(`${API_URL}/testimonials`);
   if (!response.ok) {
@@ -40,7 +47,7 @@ export async function fetchTestimonials() {
   return response.json();
 }
 
-// Enviar dados de planeamento de viagem / Submit trip planning data
+// Enviar dados de planeamento de viagem
 export async function planTrip(tripData) {
   const response = await fetch(`${API_URL}/plan-trip`, {
     method: 'POST',
