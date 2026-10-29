@@ -19,14 +19,12 @@ export const auth = betterAuth({
     enabled: true,
   },
 
-  // 💡 ORIGENS CONFIÁVEIS DINÂMICAS PARA A VERCEL E LOCALHOST
+  // 💡 EXPRESSÃO REGULAR: Aceita automaticamente qualquer URL da Vercel e o Localhost
   trustedOrigins: [
     'http://localhost:5173',
     'http://localhost:5000',
-    'https://wanderlust-travel-agency-sigma.vercel.app',
     'https://wanderlust-travel-agency-i6l9.onrender.com',
-    // Função compatível que aceita automaticamente qualquer URL de preview da Vercel
-    (origin) => origin && origin.endsWith('.vercel.app'),
+    /^https:\/\/.*\.vercel\.app$/, // Corresponde a QUALQUER subdomínio .vercel.app
   ],
 
   // 💡 Habilitar suporte a cookies cross-site (Render <-> Vercel)
