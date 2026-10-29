@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { fetchPackagesAndTestimonials } from '../services/api';
+import { fetchPackagesAndTestimonials, getImageUrl } from '../services/api'; // 💡 Importação do getImageUrl
 import { useSession } from '../services/auth-client';
 
 export function MainContent() {
@@ -36,7 +36,9 @@ export function MainContent() {
   // Gerir favoritos com base na sessão
   useEffect(() => {
     if (session?.user?.id) {
-      const savedFavorites = localStorage.getItem(`favorites_${session.user.id}`);
+      const savedFavorites = localStorage.getItem(
+        `favorites_${session.user.id}`,
+      );
       if (savedFavorites) {
         setFavorites(JSON.parse(savedFavorites));
       }
@@ -49,7 +51,7 @@ export function MainContent() {
   // Alternar favorito
   const toggleFavorite = (slug, e) => {
     e.preventDefault();
-    
+
     if (!session) {
       alert('You must be signed in to save favorites.');
       return;
@@ -63,11 +65,18 @@ export function MainContent() {
     }
 
     setFavorites(updatedFavorites);
-    localStorage.setItem(`favorites_${session.user.id}`, JSON.stringify(updatedFavorites));
+    localStorage.setItem(
+      `favorites_${session.user.id}`,
+      JSON.stringify(updatedFavorites),
+    );
   };
 
   if (loading) {
-    return <div className="text-center py-10 text-gray-600">Loading travel packages...</div>;
+    return (
+      <div className="text-center py-10 text-gray-600">
+        Loading travel packages...
+      </div>
+    );
   }
 
   if (error) {
@@ -85,15 +94,17 @@ export function MainContent() {
       selectedContinent === 'All' || pkgCategory === selectedCategory;
 
     const matchesFavorites = !showFavoritesOnly || favorites.includes(pkg.slug);
-    
+
     return matchesContinent && matchesFavorites;
   });
 
   return (
-    <section id='packages' className="py-12 px-4 max-w-7xl mx-auto">
+    <section id="packages" className="py-12 px-4 max-w-7xl mx-auto">
       {/* Cabeçalho e Filtros Centralizados */}
       <div className="flex flex-col items-center text-center mb-10 gap-6">
-        <h2 className="text-3xl font-bold text-gray-900">Featured Destinations</h2>
+        <h2 className="text-3xl font-bold text-gray-900">
+          Featured Destinations
+        </h2>
 
         {/* Botões de Filtros Centralizados */}
         <div className="flex flex-wrap justify-center items-center gap-2">
@@ -148,40 +159,52 @@ export function MainContent() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredPackages.map((pkg) => {
             const isFav = favorites.includes(pkg.slug);
-            
+
             // Garantir conversão numérica correta para exibir o $ em todos os preços
             const numericPrice = Number(pkg.price);
-            const displayPrice = !isNaN(numericPrice) ? `$${numericPrice.toLocaleString()}` : `$${pkg.price}`;
+            const displayPrice = !isNaN(numericPrice)
+              ? `$${numericPrice.toLocaleString()}`
+              : `$${pkg.price}`;
 
             return (
-              <div 
-                key={pkg.id || pkg.slug} 
+              <div
+                key={pkg.id || pkg.slug}
                 className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100 flex flex-col h-full hover:shadow-lg transition-shadow relative"
               >
                 {/* Botão de Favorito */}
                 <button
                   onClick={(e) => toggleFavorite(pkg.slug, e)}
                   className="absolute top-3 right-3 bg-white/90 hover:bg-white p-2 rounded-full shadow-md transition-transform active:scale-95 cursor-pointer z-10"
-                  title={isFav ? "Remove from favorites" : "Add to favorites"}
+                  title={isFav ? 'Remove from favorites' : 'Add to favorites'}
                 >
-                  <span className={`text-lg ${isFav ? 'text-red-500' : 'text-gray-400'}`}>
+                  <span
+                    className={`text-lg ${isFav ? 'text-red-500' : 'text-gray-400'}`}
+                  >
                     {isFav ? '❤️' : '🤍'}
                   </span>
                 </button>
 
-                {/* Imagem do destino */}
+                {/* Imagem do destino com getImageUrl aplicado */}
                 {pkg.image && (
-                  <img src={pkg.image} alt={pkg.title} className="w-full h-48 object-cover" />
+                  <img
+                    src={getImageUrl(pkg.image)}
+                    alt={pkg.title}
+                    className="w-full h-48 object-cover"
+                  />
                 )}
-                
+
                 {/* Conteúdo interno */}
                 <div className="p-6 flex flex-col flex-1 justify-between">
                   <div>
                     <span className="text-xs font-semibold text-sky-600 uppercase tracking-wider bg-sky-50 px-2.5 py-0.5 rounded-full">
                       {pkg.category}
                     </span>
-                    <h3 className="text-xl font-semibold text-gray-800 mt-2 mb-2">{pkg.title}</h3>
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-3">{pkg.description}</p>
+                    <h3 className="text-xl font-semibold text-gray-800 mt-2 mb-2">
+                      {pkg.title}
+                    </h3>
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                      {pkg.description}
+                    </p>
                   </div>
 
                   {/* Preço formatado com $ garantido */}
@@ -189,7 +212,7 @@ export function MainContent() {
                     <span className="text-sky-600 font-bold text-lg">
                       {displayPrice}
                     </span>
-                    <Link 
+                    <Link
                       to={`/packages/${pkg.slug}`}
                       className="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md text-sm transition-colors shadow-sm inline-block text-center cursor-pointer"
                     >
