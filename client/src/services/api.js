@@ -11,10 +11,19 @@ const API_URL = BASE_URL.endsWith('/api')
 // 💡 FUNÇÃO OBRIGATÓRIA EXPORTADA PARA CORRIGIR AS IMAGENS
 export function getImageUrl(imagePath) {
   if (!imagePath) return '';
+
+  // Se por acaso vier gravado com localhost do banco antigo, limpa
+  if (imagePath.includes('localhost:5000')) {
+    imagePath = imagePath
+      .replace('http://localhost:5000', '')
+      .replace('https://localhost:5000', '');
+  }
+
   // Se já for uma URL absoluta (ex: Unsplash), retorna como está
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
     return imagePath;
   }
+
   // Caso contrário, adiciona a URL base do Render ao caminho relativo
   const cleanBackend = BASE_URL.replace(/\/api$/, '');
   return `${cleanBackend}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
