@@ -31,7 +31,7 @@ router.post('/create-checkout-session', requireAuth, async (req, res) => {
       return res.status(404).json({ error: 'Travel package not found.' });
     }
 
-    // 💡 Tratamento seguro do preço (funciona quer venha como string ou número)
+    // Tratamento seguro do preço
     const rawPrice =
       typeof travelPackage.price === 'string'
         ? parseFloat(travelPackage.price.replace(/[^0-9.]/g, ''))
@@ -64,7 +64,7 @@ router.post('/create-checkout-session', requireAuth, async (req, res) => {
       price: unitAmountInCents,
     });
 
-    // 💡 Converte a imagem relativa numa URL absoluta obrigatória para o Stripe
+    // Converte a imagem relativa numa URL absoluta para o Stripe
     let packageImageUrl = travelPackage.image;
     if (packageImageUrl) {
       if (
@@ -79,9 +79,8 @@ router.post('/create-checkout-session', requireAuth, async (req, res) => {
       }
     }
 
-    // 3. Cria a sessão real de Checkout no Stripe
+    // 3. Cria a sessão real de Checkout no Stripe (sem o payment_method_types obsoleto)
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
       line_items: [
         {
           price_data: {
