@@ -19,15 +19,15 @@ export const auth = betterAuth({
     enabled: true,
   },
 
-  // 💡 EXPRESSÃO REGULAR: Aceita automaticamente qualquer URL da Vercel e o Localhost
+  // 💡 Origens estáticas confiáveis para a autenticação
   trustedOrigins: [
     'http://localhost:5173',
     'http://localhost:5000',
+    'https://wanderlust-travel-agency-sigma.vercel.app', // Domínio principal de produção
     'https://wanderlust-travel-agency-i6l9.onrender.com',
-    /^https:\/\/.*\.vercel\.app$/, // Corresponde a QUALQUER subdomínio .vercel.app
   ],
 
-  // 💡 Habilitar suporte a cookies cross-site (Render <-> Vercel)
+  // 💡 Habilitar suporte a cookies cross-site entre Render e Vercel
   advanced: {
     useSecureCookies: true,
     cookiePrefix: 'wanderlust',
